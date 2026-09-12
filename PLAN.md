@@ -4,19 +4,22 @@
 
 ## Goal
 
-Build a web application that helps users estimate a variable between 2011 and 2021 LSOA geographies by combining uploaded LSOA boundary files with postcode/geography lookup evidence, starting with an LSOA11 → LSOA21 workflow.
+Build a web application that helps users estimate additive variables in both directions between 2011 and 2021 LSOA geographies by combining uploaded LSOA boundary files with postcode/geography lookup evidence and GIS spatial analysis.
 
-A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, a lookup/crosswalk table, and a variable table, then inspect and export estimated values on the target geography.
+A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an NSPL/ONSPD-style postcode lookup, and a variable table, then choose LSOA11 → LSOA21 or LSOA21 → LSOA11, inspect spatial diagnostics, and export estimated values on the target geography.
 
 ## Scope
 
 **In scope**
 
-- England and Wales LSOA11 and LSOA21 boundary workflows first.
+- England and Wales LSOA11 and LSOA21 boundary workflows first, in both directions.
 - Browser-based loading of zipped shapefiles or GeoJSON where feasible.
+- GIS-first processing: point-in-polygon checks, spatial validation, and later polygon overlay/area-share diagnostics where useful.
 - Lookup-table based crosswalk construction using NSPL/ONSPD-style postcode geography fields.
 - Optional use of published ONS LSOA11-to-LSOA21 best-fit/exact-fit lookup as baseline or validation source.
 - Variable estimation by source-target shares, initially for additive variables such as population counts.
+- First weighting method: postcode count by source-target LSOA pair.
+- Follow-up weighting investigation: household/residential count or delivery-point/address-count proxy where a suitable source exists.
 - Diagnostics: unmatched areas, many-to-many changes, share totals, and warnings when a variable is not safely additive.
 - Export of estimated table, crosswalk table, and possibly mapped GeoJSON.
 
@@ -24,26 +27,27 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, a 
 
 - Scotland and Northern Ireland equivalents unless explicitly added later.
 - Non-additive variable transformations without a defined method.
-- Server-side processing, unless browser limits make large files unusable.
+- Server-side processing for v1, unless browser limits make large files unusable.
 - A polished public deployment before method and data-source choices are agreed.
 
 ## Method hypothesis
 
-1. Parse LSOA11 and LSOA21 boundaries for geometry display and code validation.
-2. Parse a lookup table containing postcodes and both old/new output geographies, or use an ONS-published LSOA11-to-LSOA21 lookup where available.
-3. Build a pair table: `LSOA11CD`, `LSOA21CD`, `weight`, `share_from_lsoa11`, `share_to_lsoa21`.
-4. Join an uploaded variable table to the source geography.
-5. Multiply values by shares and aggregate to the target geography.
-6. Report diagnostics for missing geography codes, share totals not summing to 1, and many-to-many relationships.
+1. Parse LSOA11 and LSOA21 boundaries for geometry display, code validation, and spatial indexing.
+2. Parse a postcode lookup table containing postcode point/grid references and old/new LSOA geography fields where available.
+3. Use point-in-polygon checks to validate or derive each postcode's LSOA11 and LSOA21 relationship against the uploaded boundaries.
+4. Build a generic source-target pair table from the selected direction: `source_lsoa`, `target_lsoa`, `postcode_count`, `share`.
+5. Join an uploaded variable table to the selected source geography.
+6. Multiply values by shares and aggregate to the selected target geography.
+7. Report diagnostics for missing geography codes, point-in-polygon mismatches, share totals not summing to 1, and many-to-many relationships.
 
 ## Milestones
 
 | # | Milestone | Status | Notes |
 |---|-----------|--------|-------|
 | 1 | Project scaffold, contact sessions, and initial investigation started | ☑ | 2026-09-12 |
-| 2 | Data-source decision: NSPL/ONSPD vs published LSOA11→LSOA21 lookup vs spatial overlay | ◐ | Needs confirmation |
-| 3 | Minimal file parser spike for boundary + CSV lookup files | ☐ | Browser feasibility test |
-| 4 | Crosswalk/share calculation prototype | ☐ | Start with postcode count or supplied weight |
+| 2 | Data-source and method decision: bidirectional GIS-first workflow, postcode-count first | ☑ | ADR 0002 |
+| 3 | Minimal GIS parser spike for zipped shapefile/GeoJSON + postcode lookup files | ☐ | Browser + Web Worker feasibility test |
+| 4 | Crosswalk/share calculation prototype | ☐ | Start with postcode count, support both directions |
 | 5 | Variable estimation and diagnostics table | ☐ | Population/count variables first |
 | 6 | Map preview and export flow | ☐ | Target LSOA geometry colored by estimate |
 | 7 | UX walkthrough and method documentation | ☐ | Explain assumptions and limitations |
@@ -52,13 +56,12 @@ Status: ☐ not started · ◐ in progress · ☑ done · ✕ dropped
 
 ## Open questions
 
-- Should the main workflow estimate **LSOA11 → LSOA21**, **LSOA21 → LSOA11**, or support both directions?
 - Which variable table shape should be supported first: one CSV with `LSOA11CD,value`, or arbitrary named variable columns?
-- Which weighting should be default: postcode count, address count, population, or a user-selected numeric field?
+- Which household/residential-count source is usable for the second weighting method?
 - Does the user expect fully local/browser processing only, or is a backend acceptable for large shapefiles/lookups?
-- Should the first proof-of-concept rely on a published ONS best-fit lookup to avoid over-engineering spatial overlay?
 - What is the target audience: analyst internal tool, public-facing teaching app, or production-grade estimator?
 
 ## Status log
 
+- **2026-09-12:** User confirmed both directions, postcode-count first, household/residential count as follow-up, and GIS/spatial analysis as required; ADR 0002 added.
 - **2026-09-12:** Project scaffolded from the web template; Discord project channel/session created; Telegram project group requested; initial data-source investigation started.

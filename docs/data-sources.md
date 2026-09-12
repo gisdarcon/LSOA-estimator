@@ -8,7 +8,7 @@ Track candidate data sources for deriving or validating shares between LSOA11 an
 
 ## User requirement
 
-The app should allow users to load LSOA11 boundaries and LSOA21 boundaries, and use an NSPL lookup table to identify shares between boundary changes for a variable such as 2021 estimated population.
+The app should allow users to load LSOA11 boundaries and LSOA21 boundaries, use an NSPL/ONSPD-style postcode lookup to identify shares between boundary changes, and estimate additive variables such as 2021 estimated population. The workflow must support both LSOA11 → LSOA21 and LSOA21 → LSOA11.
 
 ## Sources found so far
 
@@ -30,6 +30,14 @@ Search result text indicates ONS Geography/data.gov.uk has “Lower layer Super 
 - LSOA 2021 boundaries, England and Wales
 - preferred resolution: full, generalised, or clipped
 
+### Browser GIS libraries
+
+Initial web research found candidate libraries for a GIS-first implementation:
+
+- `shpjs`: parses zipped shapefiles to GeoJSON in pure JavaScript, including browser File API `ArrayBuffer` inputs.
+- Turf.js: modular GeoJSON spatial-analysis toolkit for browser and Node contexts; candidate for point-in-polygon, measurement, and other analysis functions.
+- `polygon-clipping` / `martinez-polygon-clipping`: candidate polygon boolean/intersection libraries for overlay spikes if needed.
+
 ## Candidate methods
 
 ### Method A — Published ONS LSOA11→LSOA21 lookup first
@@ -47,7 +55,7 @@ Cons:
 
 ### Method B — Postcode-weighted lookup shares
 
-Use NSPL/ONSPD records as evidence. Count or weight postcodes by source-target LSOA pairs, then calculate shares.
+Use NSPL/ONSPD records as evidence. Count or weight postcodes by source-target LSOA pairs, then calculate shares. This is the accepted first method, starting with postcode count and supporting both directions by swapping source and target.
 
 Pros:
 - aligns with user’s requested NSPL-based approach
@@ -58,6 +66,9 @@ Cons:
 - postcode count is not population count
 - terminated/current postcode handling matters
 - needs verified old and new LSOA fields
+
+Follow-up:
+- investigate a household/residential count weight, preferably based on a defensible delivery-point, residential-address, or household proxy rather than raw postcode count
 
 ### Method C — Spatial overlay of boundaries
 
@@ -74,19 +85,19 @@ Cons:
 
 ## Early recommendation
 
-Start with a simple CSV-based prototype before full boundary rendering:
+Superseded by ADR 0002. Do **not** start with a CSV-only prototype. Start with a GIS parser/spatial-analysis spike:
 
-1. Accept a prepared crosswalk table with `LSOA11CD`, `LSOA21CD`, and `weight`.
-2. Calculate source-to-target shares.
-3. Apply shares to an additive variable table keyed by `LSOA11CD`.
-4. Add boundary display only after the crosswalk/estimation math is agreed.
+1. Load LSOA11 and LSOA21 boundaries from zipped shapefile and/or GeoJSON.
+2. Load postcode lookup data with point/grid-reference fields and LSOA11/LSOA21 fields where available.
+3. Run point-in-polygon validation or derivation for postcode points against both boundary sets.
+4. Calculate bidirectional postcode-count shares.
+5. Apply shares to an additive variable table keyed by the selected source geography.
 
-This keeps the first investigation focused on method correctness rather than shapefile parsing complexity.
+This brings the core GIS risk forward instead of hiding it behind a CSV-only prototype.
 
 ## Questions to resolve with user
 
-- Is postcode count acceptable as a first weight, or must weights represent population/households/addresses?
-- Is the first direction LSOA11 → LSOA21 only?
 - Should user-uploaded data include the variable on LSOA11 or LSOA21?
 - Should the app ship with known ONS lookup downloads, or only accept user-uploaded files?
 - Is browser-only processing required?
+- Which household/residential count source can be used after postcode-count weighting?

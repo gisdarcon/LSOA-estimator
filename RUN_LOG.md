@@ -3,6 +3,13 @@
 > **Prepend-only record of what happened and when.** New entries go on top; past
 > entries are never rewritten or deleted.
 
+## [2026-09-12 21:55] Hermes Agent | Method decisions captured
+
+- Captured user decisions: support both LSOA11 → LSOA21 and LSOA21 → LSOA11; start weights with postcode count; investigate household/residential count next.
+- Captured requirement that the app must implement GIS tools/libraries, not just CSV processing.
+- Added ADR 0002 for a bidirectional GIS-first method using boundary loading, point-in-polygon validation, and postcode-count shares.
+- Updated plan, architecture, data-source investigation, project state, and task list to bring GIS/spatial-analysis risk forward.
+
 ## [2026-09-12 21:43] Hermes Agent | Project created and investigation started
 
 - Scaffolded `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator` from the web template, initialized git, and installed hooks.
