@@ -16,7 +16,8 @@
 - [ ] Verify NSPL/ONSPD fields needed for LSOA11 and LSOA21 correspondence.
 - [ ] Investigate household/residential count weighting sources and licensing.
 - [ ] Compare GIS implementation libraries for shapefile parsing, point-in-polygon, and polygon overlay.
-- [ ] Scaffold web app tooling (`package.json`, build/test stack) after method decision.
+- [ ] Scaffold static GitHub Pages-compatible web app tooling (`package.json`, build/test stack, static output config).
+- [ ] Add GitHub Pages deployment notes/workflow once repository hosting details are known.
 - [ ] Build CSV parser spike for lookup and variable tables.
 - [ ] Build boundary loader spike for zipped shapefile and/or GeoJSON.
 - [ ] Build point-in-polygon spike for postcode points against LSOA11 and LSOA21 boundaries.
@@ -28,6 +29,7 @@
 
 - [ ] Initial project framing and data-source investigation.
 - [ ] GIS library and household/residential weighting investigation.
+- [ ] Static GitHub Pages deployment constraints investigation.
 
 ## Done
 
@@ -35,6 +37,8 @@
 - [x] 2026-09-12 — Discord project channel/session created and Telegram project group routed.
 - [x] 2026-09-12 — User confirmed bidirectional workflow, postcode-count first weighting, household/residential follow-up, and GIS/spatial analysis requirement.
 - [x] 2026-09-12 — ADR 0002 accepted for bidirectional GIS-first method.
+- [x] 2026-09-12 — User confirmed the app must be static and GitHub Pages-compatible.
+- [x] 2026-09-12 — ADR 0003 accepted for static GitHub Pages deployment.
 
 ## Converge check
 

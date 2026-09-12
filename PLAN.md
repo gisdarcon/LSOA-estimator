@@ -4,7 +4,7 @@
 
 ## Goal
 
-Build a web application that helps users estimate additive variables in both directions between 2011 and 2021 LSOA geographies by combining uploaded LSOA boundary files with postcode/geography lookup evidence and GIS spatial analysis.
+Build a static web application, deployable on GitHub Pages, that helps users estimate additive variables in both directions between 2011 and 2021 LSOA geographies by combining uploaded LSOA boundary files with postcode/geography lookup evidence and GIS spatial analysis.
 
 A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an NSPL/ONSPD-style postcode lookup, and a variable table, then choose LSOA11 → LSOA21 or LSOA21 → LSOA11, inspect spatial diagnostics, and export estimated values on the target geography.
 
@@ -14,6 +14,7 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an
 
 - England and Wales LSOA11 and LSOA21 boundary workflows first, in both directions.
 - Browser-based loading of zipped shapefiles or GeoJSON where feasible.
+- Static GitHub Pages-compatible deployment: all v1 processing runs client-side with no required backend.
 - GIS-first processing: point-in-polygon checks, spatial validation, and later polygon overlay/area-share diagnostics where useful.
 - Lookup-table based crosswalk construction using NSPL/ONSPD-style postcode geography fields.
 - Optional use of published ONS LSOA11-to-LSOA21 best-fit/exact-fit lookup as baseline or validation source.
@@ -27,7 +28,7 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an
 
 - Scotland and Northern Ireland equivalents unless explicitly added later.
 - Non-additive variable transformations without a defined method.
-- Server-side processing for v1, unless browser limits make large files unusable.
+- Required server-side processing for v1; if browser limits are hit, reduce scope, use Web Workers/chunking, or record a separate optional-backend decision later.
 - A polished public deployment before method and data-source choices are agreed.
 
 ## Method hypothesis
@@ -46,7 +47,7 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an
 |---|-----------|--------|-------|
 | 1 | Project scaffold, contact sessions, and initial investigation started | ☑ | 2026-09-12 |
 | 2 | Data-source and method decision: bidirectional GIS-first workflow, postcode-count first | ☑ | ADR 0002 |
-| 3 | Minimal GIS parser spike for zipped shapefile/GeoJSON + postcode lookup files | ☐ | Browser + Web Worker feasibility test |
+| 3 | Minimal static GIS parser spike for zipped shapefile/GeoJSON + postcode lookup files | ☐ | Browser + Web Worker feasibility test; GitHub Pages-compatible build |
 | 4 | Crosswalk/share calculation prototype | ☐ | Start with postcode count, support both directions |
 | 5 | Variable estimation and diagnostics table | ☐ | Population/count variables first |
 | 6 | Map preview and export flow | ☐ | Target LSOA geometry colored by estimate |
@@ -58,10 +59,11 @@ Status: ☐ not started · ◐ in progress · ☑ done · ✕ dropped
 
 - Which variable table shape should be supported first: one CSV with `LSOA11CD,value`, or arbitrary named variable columns?
 - Which household/residential-count source is usable for the second weighting method?
-- Does the user expect fully local/browser processing only, or is a backend acceptable for large shapefiles/lookups?
+- What maximum upload sizes should the GitHub Pages/browser-only MVP support comfortably?
 - What is the target audience: analyst internal tool, public-facing teaching app, or production-grade estimator?
 
 ## Status log
 
+- **2026-09-12:** User confirmed the app must be static and GitHub Pages-compatible; ADR 0003 added.
 - **2026-09-12:** User confirmed both directions, postcode-count first, household/residential count as follow-up, and GIS/spatial analysis as required; ADR 0002 added.
 - **2026-09-12:** Project scaffolded from the web template; Discord project channel/session created; Telegram project group requested; initial data-source investigation started.

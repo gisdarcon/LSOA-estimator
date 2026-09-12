@@ -3,6 +3,12 @@
 > **Prepend-only record of what happened and when.** New entries go on top; past
 > entries are never rewritten or deleted.
 
+## [2026-09-12 21:58] Hermes Agent | Static hosting requirement captured
+
+- Captured user decision that the web app must be static and able to be served by GitHub Pages.
+- Added ADR 0003 requiring browser-only/static v1 processing, GitHub Pages-safe routing/base paths, and no required backend/server upload handling.
+- Updated plan, architecture, project state, and task list to treat static hosting as a hard constraint.
+
 ## [2026-09-12 21:55] Hermes Agent | Method decisions captured
 
 - Captured user decisions: support both LSOA11 → LSOA21 and LSOA21 → LSOA11; start weights with postcode count; investigate household/residential count next.

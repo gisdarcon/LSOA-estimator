@@ -24,5 +24,6 @@
 |-----|-------|--------|
 | [0001](0001-adopt-adr-catalogue.md) | Adopt an ADR catalogue | Accepted |
 | [0002](0002-bidirectional-gis-first-method.md) | Bidirectional GIS-first method with postcode-count starting weights | Accepted |
+| [0003](0003-static-github-pages-deployment.md) | Static GitHub Pages deployment | Accepted |
 
 Create a new record by copying [TEMPLATE.md](TEMPLATE.md) to the next number.

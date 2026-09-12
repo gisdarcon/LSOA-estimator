@@ -6,14 +6,15 @@ Last updated: 2026-09-12
 
 ## System overview
 
-Planned browser-based GIS estimator for translating additive variables in both directions between LSOA11 and LSOA21 geographies. The first accepted method is a bidirectional, GIS-first workflow using postcode-count weights, point-in-polygon validation against uploaded boundaries, and later investigation of household/residential count weights.
+Planned static, GitHub Pages-compatible browser GIS estimator for translating additive variables in both directions between LSOA11 and LSOA21 geographies. The first accepted method is a bidirectional, GIS-first workflow using postcode-count weights, point-in-polygon validation against uploaded boundaries, and later investigation of household/residential count weights. All core v1 processing runs client-side.
 
 ## Proposed module map
 
 | Module / package | Responsibility | Key files | Depends on |
 |---|---|---|---|
-| Input loader | Load boundaries, postcode lookup tables, and variable CSVs | `src/` TBD | Browser File API, CSV parser, shapefile/GeoJSON parser |
-| Spatial engine | Build spatial indexes and run point-in-polygon/overlay checks | `src/` TBD | Input loader, GIS libraries |
+| Static app shell | GitHub Pages-compatible HTML/CSS/JS bundle and route handling | `src/` TBD | Static build tooling |
+| Input loader | Load boundaries, postcode lookup tables, and variable CSVs from local files | `src/` TBD | Browser File API, CSV parser, shapefile/GeoJSON parser |
+| Worker spatial engine | Build spatial indexes and run point-in-polygon/overlay checks without blocking UI | `src/` TBD | Web Workers, input loader, GIS libraries |
 | Geography validator | Check LSOA codes, required columns, and spatial/code mismatches | `src/` TBD | Input loader, spatial engine |
 | Crosswalk builder | Convert lookup records into bidirectional LSOA11↔LSOA21 shares | `src/` TBD | Geography validator |
 | Estimator | Apply shares to additive variables and aggregate target values | `src/` TBD | Crosswalk builder |
@@ -58,7 +59,7 @@ Planned browser-based GIS estimator for translating additive variables in both d
 
 | Decision | Status | ADR |
 |---|---|---|
-| Browser-only vs backend-assisted processing | pending | TBD |
+| Browser-only/static vs backend-assisted processing | accepted: static/browser-only v1 | [0003](adrs/0003-static-github-pages-deployment.md) |
 | Canonical first-pass crosswalk method | accepted | [0002](adrs/0002-bidirectional-gis-first-method.md) |
 | Supported first input formats | pending | TBD |
 
@@ -67,6 +68,8 @@ Planned browser-based GIS estimator for translating additive variables in both d
 - Large boundary and postcode lookup files may exceed comfortable browser memory limits.
 - Zipped shapefile parsing in-browser needs validation before committing to browser-only processing.
 - Point-in-polygon for postcode points should run in a Web Worker if datasets are large enough to block the UI.
+- GitHub Pages hosting means no required backend, server-side secrets, upload storage, database, or server-side GIS processing in v1.
+- The built app must work from a repository subpath, so route handling/base paths must be GitHub Pages-safe.
 - Polygon overlay/area calculations require careful projection choices; do not compute areas on raw WGS84 coordinates without validating the method.
 - Additive variables are safer for share-based apportionment than rates, medians, or percentages.
 - ONS geography codes and lookup columns must be treated exactly; do not guess field names in code.

@@ -32,7 +32,7 @@ Keep household/residential count weighting as the next method investigation afte
 - The MVP must include boundary loading and spatial analysis spikes before the method is considered viable.
 - CSV tables remain useful for lookup and variable uploads, but they are not sufficient as the whole app.
 - The app needs a clear internal model for `sourceYear`, `targetYear`, source code field, target code field, weight field, and share normalization direction.
-- Browser performance risk is higher because LSOA boundaries and postcode-level records can be large; Web Workers and optional backend-assisted processing remain open design options.
+- Browser performance risk is higher because LSOA boundaries and postcode-level records can be large; Web Workers and static-site-compatible chunking/progress strategies are required investigation areas. A required backend is not allowed for v1 by ADR 0003.
 - Household/residential weighting needs data-source research, especially whether a suitable NSPL/ONSPD field, address count proxy, or separate residential delivery-point/address source is available and licensable.
 
 ## Alternatives considered

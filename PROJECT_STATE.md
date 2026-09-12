@@ -1,17 +1,17 @@
 # Project State — LSOA11 to LSOA21 Estimator
 
-Last updated: 2026-09-12 21:55 BST | Updated by: Hermes Agent
+Last updated: 2026-09-12 21:58 BST | Updated by: Hermes Agent
 
 ## Current focus
 
-Define and spike a bidirectional GIS-first web app that estimates variables between LSOA11 and LSOA21 geographies using uploaded boundaries, postcode lookup evidence, and spatial analysis.
+Define and spike a static, GitHub Pages-compatible, bidirectional GIS-first web app that estimates variables between LSOA11 and LSOA21 geographies using uploaded boundaries, postcode lookup evidence, and client-side spatial analysis.
 
 ## Working state
 
 - Branch: `main`
 - Tests: `python3 scripts/doc_lint.py` OK; `python3 scripts/secret_scan.py` OK
 - Build: not configured beyond web template placeholders
-- Blockers: need exact NSPL/ONSPD fields and GIS library feasibility before implementation starts
+- Blockers: need exact NSPL/ONSPD fields, browser GIS library feasibility, and static/GitHub Pages build choices before implementation starts
 
 ## What changed since last session
 
@@ -24,19 +24,22 @@ Define and spike a bidirectional GIS-first web app that estimates variables betw
 - User confirmed postcode count is the first weighting method, with household/residential count to investigate next.
 - User confirmed GIS tooling is required: boundary loading, point-in-polygon, and other spatial analysis, not CSV-only processing.
 - Added ADR 0002 for the accepted bidirectional GIS-first method.
+- User confirmed the web app must be static and able to be served by GitHub Pages.
+- Added ADR 0003 for static GitHub Pages deployment.
 
 ## Next actions (ordered)
 
 1. Verify exact fields available in the chosen NSPL/ONSPD or ONS lookup table, especially postcode point/grid references and LSOA11/LSOA21 fields.
 2. Investigate household/residential count weighting sources and licensing.
-3. Compare browser GIS libraries for zipped shapefile parsing, point-in-polygon, and polygon overlay.
-4. Build a boundary-loader and point-in-polygon spike before committing to the implementation stack.
-5. Design the generic source/target model for both transformation directions.
+3. Compare browser GIS libraries for zipped shapefile parsing, point-in-polygon, and polygon overlay, excluding Node/server-only options.
+4. Choose static GitHub Pages-safe app tooling and route/base-path strategy.
+5. Build a boundary-loader and point-in-polygon spike before committing to the implementation stack.
+6. Design the generic source/target model for both transformation directions.
 
 ## Open threads
 
 - Data source pending: exact NSPL/ONSPD fields, household/residential count source, and published lookup validation role.
-- Architecture pending: browser-only vs backend-assisted processing.
+- Architecture accepted: static/browser-only v1 deployable on GitHub Pages; exact tooling pending.
 - Method accepted: bidirectional GIS-first, postcode-count first; details pending for input field mapping and performance strategy.
 
 ## Pointers
