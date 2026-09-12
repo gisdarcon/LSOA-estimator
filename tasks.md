@@ -15,12 +15,13 @@
 - [ ] Confirm target variable format and first example variable, e.g. 2021 estimated population.
 - [ ] Verify NSPL/ONSPD fields needed for LSOA11 and LSOA21 correspondence.
 - [ ] Investigate household/residential count weighting sources and licensing.
-- [ ] Compare GIS implementation libraries for shapefile parsing, point-in-polygon, and polygon overlay, then ask user to select before installing/committing to one.
-- [ ] Scaffold static GitHub Pages-compatible web app tooling (`package.json`, build/test stack, static output config).
+- [x] Compare GIS implementation libraries for shapefile parsing, point-in-polygon, and polygon overlay, then ask user to select before installing/committing to one.
+- [ ] Scaffold static GitHub Pages-compatible Vite + TypeScript + Svelte app tooling (`package.json`, build/test stack, static output config).
 - [ ] Add GitHub Pages deployment notes/workflow once repository hosting details are known.
 - [ ] Build CSV parser spike for lookup and variable tables.
 - [ ] Build boundary loader spike for zipped shapefile and/or GeoJSON.
 - [ ] Build point-in-polygon spike for postcode points against LSOA11 and LSOA21 boundaries.
+- [ ] Move difficult parsing/spatial computations into browser Web Workers using client processing resources.
 - [ ] Implement share calculation and diagnostics table.
 - [ ] Implement export of crosswalk and estimated target geography table.
 - [ ] Add map preview of source/target boundaries and estimated values.
@@ -40,6 +41,9 @@
 - [x] 2026-09-12 — User confirmed the app must be static and GitHub Pages-compatible.
 - [x] 2026-09-12 — ADR 0003 accepted for static GitHub Pages deployment.
 - [x] 2026-09-12 — User requested to be shown library options and asked to select the favourable library before choices are made.
+- [x] 2026-09-12 — User selected Vite + TypeScript + Svelte, Turf.js, and shpjs.
+- [x] 2026-09-12 — User confirmed difficult computations should use client processing resources.
+- [x] 2026-09-12 — ADR 0004 accepted for the static client library stack.
 
 ## Converge check
 

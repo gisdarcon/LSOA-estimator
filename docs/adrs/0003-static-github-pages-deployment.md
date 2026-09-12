@@ -13,7 +13,7 @@ tags: [architecture, deployment, static-site]
 
 The user confirmed that the web app must be static and able to be served by GitHub Pages. This constrains the architecture: the production application cannot require a server process, database, server-side upload handling, or private backend job queue.
 
-The app still needs GIS functionality: uploaded LSOA boundaries, postcode lookup data, point-in-polygon checks, spatial diagnostics, bidirectional share calculation, and export. Therefore these operations must run in the browser, preferably using Web Workers for heavy parsing and spatial analysis so the UI remains responsive.
+The app still needs GIS functionality: uploaded LSOA boundaries, postcode lookup data, point-in-polygon checks, spatial diagnostics, bidirectional share calculation, and export. Therefore these operations must run in the browser, using the client machine's processing resources. Web Workers should be used for heavy parsing and spatial analysis so the UI remains responsive.
 
 GitHub Pages also affects build and routing choices. The app should produce static assets that work under a repository subpath, not only at the domain root. Runtime access to user files should use the browser File API; optional sample data can be bundled or fetched as static files if licensing and file size allow.
 
@@ -25,13 +25,13 @@ Use static-site-compatible tooling and design choices:
 
 - build output is static HTML/CSS/JS suitable for GitHub Pages;
 - route handling must work on a GitHub Pages subpath, using hash routing or correctly configured relative base paths;
-- GIS parsing and point-in-polygon work should run client-side, with Web Workers for large datasets;
+- GIS parsing, point-in-polygon, and other difficult computations should run client-side using browser/client processing resources, with Web Workers for large datasets;
 - no server-only APIs, server-side secrets, database writes, or backend upload storage;
 - optional static sample datasets must be license-checked and size-conscious.
 
 ## Consequences
 
-- Browser memory and CPU limits become first-class constraints for boundary and postcode lookup processing.
+- Browser memory and CPU limits become first-class constraints for boundary and postcode lookup processing because the client machine performs the difficult computations.
 - The implementation should prefer libraries that work in browser bundles and avoid Node-only geospatial dependencies.
 - Large-file UX must include progress indicators, warnings, and failure modes rather than relying on a backend rescue path.
 - If a future backend-assisted mode becomes necessary, it must be optional and recorded in a new ADR; it cannot be required for the GitHub Pages version.

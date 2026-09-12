@@ -3,6 +3,12 @@
 > **Prepend-only record of what happened and when.** New entries go on top; past
 > entries are never rewritten or deleted.
 
+## [2026-09-12 22:03] Hermes Agent | Client-processing stack selected
+
+- User selected Vite + TypeScript + Svelte for the static GitHub Pages app, Turf.js for first GIS analysis, and shpjs for browser ZIP shapefile loading.
+- User confirmed difficult computations should use the client's processing resources.
+- Added ADR 0004 and updated the plan, architecture, project state, and task list.
+
 ## [2026-09-12 22:00] Hermes Agent | Library-selection preference captured
 
 - Captured user preference that candidate libraries should be presented with trade-offs and selected by the user before adoption.

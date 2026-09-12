@@ -6,15 +6,15 @@ Last updated: 2026-09-12
 
 ## System overview
 
-Planned static, GitHub Pages-compatible browser GIS estimator for translating additive variables in both directions between LSOA11 and LSOA21 geographies. The first accepted method is a bidirectional, GIS-first workflow using postcode-count weights, point-in-polygon validation against uploaded boundaries, and later investigation of household/residential count weights. All core v1 processing runs client-side.
+Planned static, GitHub Pages-compatible browser GIS estimator for translating additive variables in both directions between LSOA11 and LSOA21 geographies. The first accepted method is a bidirectional, GIS-first workflow using postcode-count weights, point-in-polygon validation against uploaded boundaries, and later investigation of household/residential count weights. All core v1 processing runs client-side and uses the client machine's browser resources for difficult computations.
 
 ## Proposed module map
 
 | Module / package | Responsibility | Key files | Depends on |
 |---|---|---|---|
-| Static app shell | GitHub Pages-compatible HTML/CSS/JS bundle and route handling | `src/` TBD | Static build tooling |
+| Static app shell | GitHub Pages-compatible Svelte app bundle and route handling | `src/` TBD | Vite, TypeScript, Svelte |
 | Input loader | Load boundaries, postcode lookup tables, and variable CSVs from local files | `src/` TBD | Browser File API, CSV parser, shapefile/GeoJSON parser |
-| Worker spatial engine | Build spatial indexes and run point-in-polygon/overlay checks without blocking UI | `src/` TBD | Web Workers, input loader, GIS libraries |
+| Worker spatial engine | Use client processing resources to build spatial indexes and run point-in-polygon/overlay checks without blocking UI | `src/` TBD | Web Workers, input loader, Turf.js |
 | Geography validator | Check LSOA codes, required columns, and spatial/code mismatches | `src/` TBD | Input loader, spatial engine |
 | Crosswalk builder | Convert lookup records into bidirectional LSOA11↔LSOA21 shares | `src/` TBD | Geography validator |
 | Estimator | Apply shares to additive variables and aggregate target values | `src/` TBD | Crosswalk builder |
@@ -55,6 +55,8 @@ Planned static, GitHub Pages-compatible browser GIS estimator for translating ad
 | Turf.js | Candidate browser/Node spatial analysis toolkit | Research indicates modular GeoJSON spatial analysis functions usable without sending data to a server |
 | `polygon-clipping` / `martinez-polygon-clipping` | Candidate polygon overlay engine | For intersection/overlay spikes if higher-level Turf operations are insufficient |
 
+Selected first stack: Vite + TypeScript + Svelte for the app framework, Turf.js for point-in-polygon/GeoJSON analysis, and `shpjs` for browser ZIP shapefile parsing. See [ADR 0004](adrs/0004-static-client-library-stack.md).
+
 Library choices are not automatic: before adding GIS, UI, build, mapping, CSV, or deployment libraries to the project, present the viable options with trade-offs and ask the user to select the preferred option.
 
 ## Architectural decisions pending
@@ -63,6 +65,7 @@ Library choices are not automatic: before adding GIS, UI, build, mapping, CSV, o
 |---|---|---|
 | Browser-only/static vs backend-assisted processing | accepted: static/browser-only v1 | [0003](adrs/0003-static-github-pages-deployment.md) |
 | Canonical first-pass crosswalk method | accepted | [0002](adrs/0002-bidirectional-gis-first-method.md) |
+| Static client library stack | accepted | [0004](adrs/0004-static-client-library-stack.md) |
 | Supported first input formats | pending | TBD |
 | Major app/library choices | pending user selection | TBD |
 
@@ -70,7 +73,7 @@ Library choices are not automatic: before adding GIS, UI, build, mapping, CSV, o
 
 - Large boundary and postcode lookup files may exceed comfortable browser memory limits.
 - Zipped shapefile parsing in-browser needs validation before committing to browser-only processing.
-- Point-in-polygon for postcode points should run in a Web Worker if datasets are large enough to block the UI.
+- Point-in-polygon for postcode points and other difficult computations should use client browser processing resources and run in a Web Worker if datasets are large enough to block the UI.
 - GitHub Pages hosting means no required backend, server-side secrets, upload storage, database, or server-side GIS processing in v1.
 - The built app must work from a repository subpath, so route handling/base paths must be GitHub Pages-safe.
 - Polygon overlay/area calculations require careful projection choices; do not compute areas on raw WGS84 coordinates without validating the method.

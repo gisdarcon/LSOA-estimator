@@ -15,6 +15,7 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an
 - England and Wales LSOA11 and LSOA21 boundary workflows first, in both directions.
 - Browser-based loading of zipped shapefiles or GeoJSON where feasible.
 - Static GitHub Pages-compatible deployment: all v1 processing runs client-side with no required backend.
+- Difficult computations should use the client's browser processing resources, with Web Workers where needed to avoid blocking the UI.
 - GIS-first processing: point-in-polygon checks, spatial validation, and later polygon overlay/area-share diagnostics where useful.
 - Lookup-table based crosswalk construction using NSPL/ONSPD-style postcode geography fields.
 - Optional use of published ONS LSOA11-to-LSOA21 best-fit/exact-fit lookup as baseline or validation source.
@@ -47,7 +48,7 @@ A useful first version lets a user load LSOA11 boundaries, LSOA21 boundaries, an
 |---|-----------|--------|-------|
 | 1 | Project scaffold, contact sessions, and initial investigation started | ☑ | 2026-09-12 |
 | 2 | Data-source and method decision: bidirectional GIS-first workflow, postcode-count first | ☑ | ADR 0002 |
-| 3 | Minimal static GIS parser spike for zipped shapefile/GeoJSON + postcode lookup files | ☐ | Browser + Web Worker feasibility test; GitHub Pages-compatible build |
+| 3 | Minimal static GIS parser spike for zipped shapefile/GeoJSON + postcode lookup files | ☐ | Vite + TypeScript + Svelte, Turf.js, shpjs, browser + Web Worker feasibility test; GitHub Pages-compatible build |
 | 4 | Crosswalk/share calculation prototype | ☐ | Start with postcode count, support both directions |
 | 5 | Variable estimation and diagnostics table | ☐ | Population/count variables first |
 | 6 | Map preview and export flow | ☐ | Target LSOA geometry colored by estimate |
@@ -65,5 +66,6 @@ Status: ☐ not started · ◐ in progress · ☑ done · ✕ dropped
 ## Status log
 
 - **2026-09-12:** User confirmed the app must be static and GitHub Pages-compatible; ADR 0003 added.
+- **2026-09-12:** User selected Vite + TypeScript + Svelte, Turf.js, and shpjs; user also confirmed difficult computations should use client processing resources; ADR 0004 added.
 - **2026-09-12:** User confirmed both directions, postcode-count first, household/residential count as follow-up, and GIS/spatial analysis as required; ADR 0002 added.
 - **2026-09-12:** Project scaffolded from the web template; Discord project channel/session created; Telegram project group requested; initial data-source investigation started.
