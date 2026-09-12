@@ -1,0 +1,31 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+
+# Environment & secrets (never commit these)
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# Agent state (tool-local, machine-specific — keep out of the repo)
+.claude/
+.cursor/
+.aider/
+.codex/
+
+# Logs & generated data
+*.log
+*.sqlite3
+data/
+# Node / frontend
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.nuxt/
+.turbo/
+.cache/

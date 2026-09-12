@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Pre-commit gate — the mechanical enforcement of the rules in AGENTS.md.
+# See CONTRIBUTING.md. Bypass with `git commit --no-verify` (discouraged; do not).
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+fail=0
+echo "→ pre-commit checks"
+# PYTHONDONTWRITEBYTECODE: don't drop __pycache__ into the repo while linting.
+PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/doc_lint.py" "$ROOT" || fail=1
+PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/secret_scan.py" "$ROOT" || fail=1
+
+# Shared wiki sync: keep the root wiki aware of project metadata on commits.
+# Best-effort; wiki_lint remains the hard check for the shared wiki itself.
+SYNC_PROJECT_WIKI="/home/kd/NAS_Hermes/scripts/sync-project-wiki.py"
+if [ -x "$SYNC_PROJECT_WIKI" ]; then
+  PYTHONDONTWRITEBYTECODE=1 python3 "$SYNC_PROJECT_WIKI" --project "$ROOT" --commit ||     echo "WARN: shared wiki sync failed; run: python3 $SYNC_PROJECT_WIKI --project '$ROOT' --commit" >&2
+fi
+
+# Review loop (papers/research only): informational — never blocks a commit
+# while a doc is under review. (|| true keeps the gate green even on a schema warn.)
+[ -f "$ROOT/REVIEW.md" ] && PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/review.py" "$ROOT" || true
+if [ "$fail" -ne 0 ]; then
+  echo "✗ pre-commit checks failed. Fix the issues above, or (discouraged) bypass with:"
+  echo "   git commit --no-verify"
+  exit 1
+fi
+echo "✓ pre-commit checks passed"
+exit 0
