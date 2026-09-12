@@ -3,6 +3,11 @@
 > **Prepend-only record of what happened and when.** New entries go on top; past
 > entries are never rewritten or deleted.
 
+## [2026-09-12 22:00] Hermes Agent | Library-selection preference captured
+
+- Captured user preference that candidate libraries should be presented with trade-offs and selected by the user before adoption.
+- Updated architecture, task list, and project state so GIS/build/library choices are not made silently.
+
 ## [2026-09-12 21:58] Hermes Agent | Static hosting requirement captured
 
 - Captured user decision that the web app must be static and able to be served by GitHub Pages.

@@ -1,6 +1,6 @@
 # Project State — LSOA11 to LSOA21 Estimator
 
-Last updated: 2026-09-12 21:58 BST | Updated by: Hermes Agent
+Last updated: 2026-09-12 22:00 BST | Updated by: Hermes Agent
 
 ## Current focus
 
@@ -11,7 +11,7 @@ Define and spike a static, GitHub Pages-compatible, bidirectional GIS-first web 
 - Branch: `main`
 - Tests: `python3 scripts/doc_lint.py` OK; `python3 scripts/secret_scan.py` OK
 - Build: not configured beyond web template placeholders
-- Blockers: need exact NSPL/ONSPD fields, browser GIS library feasibility, and static/GitHub Pages build choices before implementation starts
+- Blockers: need exact NSPL/ONSPD fields, browser GIS library feasibility, static/GitHub Pages build choices, and user selection before adopting major libraries
 
 ## What changed since last session
 
@@ -26,13 +26,14 @@ Define and spike a static, GitHub Pages-compatible, bidirectional GIS-first web 
 - Added ADR 0002 for the accepted bidirectional GIS-first method.
 - User confirmed the web app must be static and able to be served by GitHub Pages.
 - Added ADR 0003 for static GitHub Pages deployment.
+- User requested that library options be presented with a chance to select the preferred choice before libraries are adopted.
 
 ## Next actions (ordered)
 
 1. Verify exact fields available in the chosen NSPL/ONSPD or ONS lookup table, especially postcode point/grid references and LSOA11/LSOA21 fields.
 2. Investigate household/residential count weighting sources and licensing.
 3. Compare browser GIS libraries for zipped shapefile parsing, point-in-polygon, and polygon overlay, excluding Node/server-only options.
-4. Choose static GitHub Pages-safe app tooling and route/base-path strategy.
+4. Present static GitHub Pages-safe app tooling and GIS library options for user selection before implementation.
 5. Build a boundary-loader and point-in-polygon spike before committing to the implementation stack.
 6. Design the generic source/target model for both transformation directions.
 

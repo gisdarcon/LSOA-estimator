@@ -55,6 +55,8 @@ Planned static, GitHub Pages-compatible browser GIS estimator for translating ad
 | Turf.js | Candidate browser/Node spatial analysis toolkit | Research indicates modular GeoJSON spatial analysis functions usable without sending data to a server |
 | `polygon-clipping` / `martinez-polygon-clipping` | Candidate polygon overlay engine | For intersection/overlay spikes if higher-level Turf operations are insufficient |
 
+Library choices are not automatic: before adding GIS, UI, build, mapping, CSV, or deployment libraries to the project, present the viable options with trade-offs and ask the user to select the preferred option.
+
 ## Architectural decisions pending
 
 | Decision | Status | ADR |
@@ -62,6 +64,7 @@ Planned static, GitHub Pages-compatible browser GIS estimator for translating ad
 | Browser-only/static vs backend-assisted processing | accepted: static/browser-only v1 | [0003](adrs/0003-static-github-pages-deployment.md) |
 | Canonical first-pass crosswalk method | accepted | [0002](adrs/0002-bidirectional-gis-first-method.md) |
 | Supported first input formats | pending | TBD |
+| Major app/library choices | pending user selection | TBD |
 
 ## Performance & constraints
 

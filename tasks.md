@@ -15,7 +15,7 @@
 - [ ] Confirm target variable format and first example variable, e.g. 2021 estimated population.
 - [ ] Verify NSPL/ONSPD fields needed for LSOA11 and LSOA21 correspondence.
 - [ ] Investigate household/residential count weighting sources and licensing.
-- [ ] Compare GIS implementation libraries for shapefile parsing, point-in-polygon, and polygon overlay.
+- [ ] Compare GIS implementation libraries for shapefile parsing, point-in-polygon, and polygon overlay, then ask user to select before installing/committing to one.
 - [ ] Scaffold static GitHub Pages-compatible web app tooling (`package.json`, build/test stack, static output config).
 - [ ] Add GitHub Pages deployment notes/workflow once repository hosting details are known.
 - [ ] Build CSV parser spike for lookup and variable tables.
@@ -39,6 +39,7 @@
 - [x] 2026-09-12 — ADR 0002 accepted for bidirectional GIS-first method.
 - [x] 2026-09-12 — User confirmed the app must be static and GitHub Pages-compatible.
 - [x] 2026-09-12 — ADR 0003 accepted for static GitHub Pages deployment.
+- [x] 2026-09-12 — User requested to be shown library options and asked to select the favourable library before choices are made.
 
 ## Converge check
 
