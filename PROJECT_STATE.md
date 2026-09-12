@@ -18,7 +18,7 @@ Define the first viable method and UX for a web app that estimates variables bet
 - Created project under `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator` from the web template.
 - Created Hermes Desktop Project anchored to the project root.
 - Created Discord channel/session: `#p-lsoa11-to-lsoa21-estimator` / `D-LSOA11 to LSOA21 estimator`.
-- Sent Telegram request for group/topic: `P - LSOA11 to LSOA21 estimator`.
+- Routed Telegram group/session: `P - LSOA11 to LSOA21 estimator` / `T-LSOA11 to LSOA21 estimator`.
 - Started investigation of ONS postcode/geography lookups and LSOA boundary sources.
 
 ## Next actions (ordered)
@@ -31,9 +31,9 @@ Define the first viable method and UX for a web app that estimates variables bet
 
 ## Open threads
 
-- Telegram routing pending: user needs to create/share the Telegram group/topic ID for `P - LSOA11 to LSOA21 estimator`.
 - Data source pending: NSPL vs ONSPD vs published LSOA11-to-LSOA21 lookup.
 - Architecture pending: browser-only vs backend-assisted processing.
+- Method details pending: transformation direction, weighting basis, and first input file format.
 
 ## Pointers
 

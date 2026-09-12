@@ -8,7 +8,8 @@
 - Scaffolded `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator` from the web template, initialized git, and installed hooks.
 - Created Hermes Desktop Project `LSOA11 to LSOA21 estimator` anchored to the project root.
 - Created Discord project channel/session: `#p-lsoa11-to-lsoa21-estimator` / `D-LSOA11 to LSOA21 estimator`.
-- Requested Telegram project group/topic in the general Telegram chat: `P - LSOA11 to LSOA21 estimator`.
+- Requested and then routed Telegram project group/session: `P - LSOA11 to LSOA21 estimator` / `T-LSOA11 to LSOA21 estimator`.
+- Sent a starter message in Discord project channel with the first method questions.
 - Framed the first method questions: NSPL/ONSPD vs published ONS LSOA lookup vs spatial overlay; weighting method; browser-only feasibility.
 - Watch-outs: additive variables only for first pass; verify exact ONS field names before implementation.
 

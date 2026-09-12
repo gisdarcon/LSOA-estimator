@@ -31,7 +31,7 @@
 ## Done
 
 - [x] 2026-09-12 — Project scaffolded from the web template under `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator`.
-- [x] 2026-09-12 — Discord project channel/session created and Telegram project group requested.
+- [x] 2026-09-12 — Discord project channel/session created and Telegram project group routed.
 
 ## Converge check
 
