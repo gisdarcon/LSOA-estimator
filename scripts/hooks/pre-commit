@@ -13,7 +13,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/scripts/secret_scan.py" "$ROOT" || fail
 # Best-effort; wiki_lint remains the hard check for the shared wiki itself.
 SYNC_PROJECT_WIKI="/home/kd/NAS_Hermes/scripts/sync-project-wiki.py"
 if [ -x "$SYNC_PROJECT_WIKI" ]; then
-  PYTHONDONTWRITEBYTECODE=1 python3 "$SYNC_PROJECT_WIKI" --project "$ROOT" --commit ||     echo "WARN: shared wiki sync failed; run: python3 $SYNC_PROJECT_WIKI --project '$ROOT' --commit" >&2
+  PYTHONDONTWRITEBYTECODE=1 python3 "$SYNC_PROJECT_WIKI" --project "$ROOT" --stack web --commit ||     echo "WARN: shared wiki sync failed; run: python3 $SYNC_PROJECT_WIKI --project '$ROOT' --stack web --commit" >&2
 fi
 
 # Review loop (papers/research only): informational — never blocks a commit
