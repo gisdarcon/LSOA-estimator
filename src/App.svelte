@@ -154,15 +154,15 @@
 
     currentStep = 3;
     const boundaryLabel = direction === '11to21' ? '2021 changed target/output polygons' : '2011 changed target/output polygons';
-    status = `Apportionment (${direction}) complete. Loading ONS generalised ${boundaryLabel}...`;
+    status = `Estimation (${direction}) complete. Loading ONS generalised ${boundaryLabel}...`;
 
     try {
       boundaries = await fetchChangedBoundaries(direction, shares);
-      status = `Apportionment (${direction}) complete. Generated ${estimates.length.toLocaleString()} mapping records; ${nonUnitWeights.toLocaleString()} rows have non-1 weights. Loaded ${boundaries.features?.length?.toLocaleString?.() || 0} ONS generalised boundary polygons.`;
+      status = `Estimation (${direction}) complete. Generated ${estimates.length.toLocaleString()} mapping records; ${nonUnitWeights.toLocaleString()} rows use fractional weights. Loaded ${boundaries.features?.length?.toLocaleString?.() || 0} ONS generalised boundary polygons.`;
     } catch (e) {
       console.error(e);
       boundaries = null;
-      status = `Apportionment (${direction}) complete, but the ONS generalised boundary polygons failed to load.`;
+      status = `Estimation (${direction}) complete, but the ONS generalised boundary polygons failed to load.`;
     }
   }
 
@@ -187,7 +187,7 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">LSOA 2011 to 2021 Estimator</h1>
-        <p class="{isDarkMode ? 'text-slate-400' : 'text-indigo-200'} text-sm">Official ONS Geographic Proportional Apportionment Tool</p>
+        <p class="{isDarkMode ? 'text-slate-400' : 'text-indigo-200'} text-sm">Geographic Proportional Estimation Tool</p>
       </div>
       <div class="flex items-center space-x-4">
         <button 
@@ -211,7 +211,7 @@
             <span>Dark Mode</span>
           {/if}
         </button>
-        <span class="bg-indigo-800/60 text-indigo-100 text-xs px-3 py-1 rounded-full font-medium hidden sm:inline-block">v1.0 Production</span>
+
       </div>
     </div>
   </header>
@@ -282,7 +282,7 @@
       {:else if currentStep === 2}
         <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-8 space-y-6">
           <div>
-            <h2 class="text-lg font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Step 2: Spatial Apportionment Configuration</h2>
+            <h2 class="text-lg font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Step 2: Estimation Configuration</h2>
             <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'} mt-1">Review your loaded data and optional boundary attachments before running the national crosswalk.</p>
           </div>
 
@@ -341,8 +341,8 @@
               <!-- Action Bar -->
               <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-6 space-y-4">
                 <div>
-                  <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Apportionment Complete</h3>
-                  <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">Generated {estimates.length.toLocaleString()} target mapping rows across national boundaries. {nonUnitWeights.toLocaleString()} rows use a non-1 apportionment weight.</p>
+                  <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Estimation Complete</h3>
+                  <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">Generated {estimates.length.toLocaleString()} target mapping rows across national boundaries. {nonUnitWeights.toLocaleString()} rows use fractional weights.</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button type="button" class="px-4 py-2 text-sm font-medium cursor-pointer {isDarkMode ? 'text-slate-300 bg-slate-700 hover:bg-slate-600' : 'text-slate-700 bg-slate-100 hover:bg-slate-200'} rounded-lg transition-colors" on:click={resetApp}>Start Over</button>
@@ -439,7 +439,7 @@
           <!-- Preview Table -->
           <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border overflow-hidden">
             <div class="px-6 py-4 border-b {isDarkMode ? 'border-slate-700' : 'border-slate-200'} flex justify-between items-center">
-              <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Output Data Preview (non-1 weights shown first)</h3>
+              <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Output Data Preview (fractional weights shown first)</h3>
               <span class="text-xs text-slate-400">Schema: lsoa2011, lsoa2021, weight, {originalValueKey}</span>
             </div>
             <div class="overflow-x-auto">
@@ -472,6 +472,6 @@
 
   <!-- Footer -->
   <footer class="{isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-400'} border-t py-6 mt-12 text-center text-xs">
-    LSOA11 to LSOA21 Proportional Estimator • Built with Svelte & Tailwind CSS
+    LSOA11 to LSOA21 Proportional Estimator • Created by Konstantinos Daras - Konstantinos.Daras@liverpool.ac.uk
   </footer>
 </div>
