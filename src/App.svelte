@@ -51,23 +51,53 @@
 
   $: crosswalkStats = (() => {
     const bySource = new Map<string, ShareResult[]>();
+    const byTarget = new Map<string, ShareResult[]>();
     for (const row of crosswalkRows) {
-      const rels = bySource.get(row.source_lsoa) || [];
-      rels.push(row);
-      bySource.set(row.source_lsoa, rels);
+      const sourceRels = bySource.get(row.source_lsoa) || [];
+      sourceRels.push(row);
+      bySource.set(row.source_lsoa, sourceRels);
+
+      const targetRels = byTarget.get(row.target_lsoa) || [];
+      targetRels.push(row);
+      byTarget.set(row.target_lsoa, targetRels);
     }
-    let stableOneToOne = 0;
+
+    let stableSourceOneToOne = 0;
     let splitSources = 0;
     let complexSources = 0;
     let changedSources = 0;
-    for (const [src, rels] of bySource) {
+    for (const rels of bySource.values()) {
       const changed = rels.length > 1 || rels.some(r => r.source_lsoa !== r.target_lsoa);
-      if (rels.length === 1 && rels[0].source_lsoa === rels[0].target_lsoa) stableOneToOne += 1;
+      if (rels.length === 1 && rels[0].source_lsoa === rels[0].target_lsoa) stableSourceOneToOne += 1;
       if (rels.length > 1) splitSources += 1;
       if (rels.length >= 3) complexSources += 1;
       if (changed) changedSources += 1;
     }
-    return { stableOneToOne, splitSources, complexSources, changedSources, sourceTotal: bySource.size };
+
+    let stableTargetOneToOne = 0;
+    let mergedTargets = 0;
+    let complexTargets = 0;
+    let changedTargets = 0;
+    for (const rels of byTarget.values()) {
+      const changed = rels.length > 1 || rels.some(r => r.source_lsoa !== r.target_lsoa);
+      if (rels.length === 1 && rels[0].source_lsoa === rels[0].target_lsoa) stableTargetOneToOne += 1;
+      if (rels.length > 1) mergedTargets += 1;
+      if (rels.length >= 3) complexTargets += 1;
+      if (changed) changedTargets += 1;
+    }
+
+    return {
+      stableSourceOneToOne,
+      splitSources,
+      complexSources,
+      changedSources,
+      sourceTotal: bySource.size,
+      stableTargetOneToOne,
+      mergedTargets,
+      complexTargets,
+      changedTargets,
+      targetTotal: byTarget.size
+    };
   })();
 
   onMount(() => {
@@ -286,68 +316,124 @@
       <!-- Step 3: Audit & Export -->
       {:else if currentStep === 3}
         <div class="space-y-6">
-          {#if boundaries}
-            <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-5">
-              <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'} mb-3">Spatial Boundary Preview</h3>
-              <MapPreview geojson={boundaries} {direction} />
-            </div>
-          {/if}
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-5 space-y-6">
+              <!-- Summary Cards -->
+              <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+                  <div class="space-y-0.5">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Input ({direction === '11to21' ? '2011' : '2021'})</span>
+                    <div class="text-lg font-bold {isDarkMode ? 'text-white' : 'text-slate-900'}">{totalInputPop.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+                  </div>
+                  <div class="space-y-0.5 sm:border-l sm:pl-3 lg:border-l-0 lg:pl-0 lg:border-t lg:pt-3 {isDarkMode ? 'border-slate-700' : 'border-slate-200'}">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Estimated ({direction === '11to21' ? '2021' : '2011'})</span>
+                    <div class="text-lg font-bold {isDarkMode ? 'text-white' : 'text-slate-900'}">{totalEstimatedPop.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+                  </div>
+                  <div class="space-y-0.5 sm:border-l sm:pl-3 lg:border-l-0 lg:pl-0 lg:border-t lg:pt-3 {isDarkMode ? 'border-slate-700' : 'border-slate-200'}">
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Conservation Check</span>
+                    <div class="text-lg font-bold {Math.abs(totalInputPop - totalEstimatedPop) > 5 ? 'text-red-500' : 'text-emerald-400'}">
+                      {Math.abs(totalInputPop - totalEstimatedPop) < 0.01 ? 'Perfect Match' : `${Math.abs(totalInputPop - totalEstimatedPop).toFixed(2)} diff`}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} p-6 rounded-xl shadow-sm border space-y-1">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Input ({direction === '11to21' ? '2011' : '2021'})</span>
-              <div class="text-2xl font-bold {isDarkMode ? 'text-white' : 'text-slate-900'}">{totalInputPop.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
-            </div>
-            <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} p-6 rounded-xl shadow-sm border space-y-1">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Estimated ({direction === '11to21' ? '2021' : '2011'})</span>
-              <div class="text-2xl font-bold {isDarkMode ? 'text-white' : 'text-slate-900'}">{totalEstimatedPop.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
-            </div>
-            <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} p-6 rounded-xl shadow-sm border space-y-1">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conservation Check</span>
-              <div class="text-2xl font-bold {Math.abs(totalInputPop - totalEstimatedPop) > 5 ? 'text-red-500' : 'text-emerald-400'}">
-                {Math.abs(totalInputPop - totalEstimatedPop) < 0.01 ? 'Perfect Match' : `${Math.abs(totalInputPop - totalEstimatedPop).toFixed(2)} diff`}
+              <!-- Action Bar -->
+              <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-6 space-y-4">
+                <div>
+                  <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Apportionment Complete</h3>
+                  <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">Generated {estimates.length.toLocaleString()} target mapping rows across national boundaries. {nonUnitWeights.toLocaleString()} rows use a non-1 apportionment weight.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <button type="button" class="px-4 py-2 text-sm font-medium cursor-pointer {isDarkMode ? 'text-slate-300 bg-slate-700 hover:bg-slate-600' : 'text-slate-700 bg-slate-100 hover:bg-slate-200'} rounded-lg transition-colors" on:click={resetApp}>Start Over</button>
+                  <button type="button" class="px-5 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors flex items-center justify-center space-x-2 cursor-pointer" on:click={downloadResults}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Download Estimates (CSV)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relationship Statistics -->
+              <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-6 space-y-4">
+                <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{direction === '11to21' ? '2011 → 2021 Relationship Statistics' : '2021 → 2011 Relationship Statistics'}</h3>
+                <p class="text-xs {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">
+                  Shows both active-direction splits and output-side merges from the ONS Exact Fit crosswalk. The map to the right shows changed {direction === '11to21' ? 'LSOA 2021 target/output polygons' : 'LSOA 2011 target/output polygons'} using ONS Generalised Clipped boundaries.
+                </p>
+
+                {#if direction === '11to21'}
+                  <div class="space-y-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Input-side splits: 2011 LSOAs → 2021 LSOAs</h4>
+                    <ul class="space-y-2 text-sm {isDarkMode ? 'text-slate-300' : 'text-slate-700'}">
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">Stable 1-to-1 LSOA11 relationships</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.stableSourceOneToOne.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.stableSourceOneToOne / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s split across 2+ LSOA21s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.splitSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.splitSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s split across 3+ LSOA21s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.complexSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.complexSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="space-y-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Output-side merges: 2021 LSOAs from 2011 LSOAs</h4>
+                    <ul class="space-y-2 text-sm {isDarkMode ? 'text-slate-300' : 'text-slate-700'}">
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA21s made from 2+ LSOA11s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.mergedTargets.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.mergedTargets / crosswalkStats.targetTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA21s made from 3+ LSOA11s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.complexTargets.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.complexTargets / crosswalkStats.targetTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                    </ul>
+                  </div>
+                {:else}
+                  <div class="space-y-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Input-side splits: 2021 LSOAs → 2011 LSOAs</h4>
+                    <ul class="space-y-2 text-sm {isDarkMode ? 'text-slate-300' : 'text-slate-700'}">
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">Stable 1-to-1 LSOA21 relationships</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.stableTargetOneToOne.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.stableTargetOneToOne / crosswalkStats.targetTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA21s split across 2+ LSOA11s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.mergedTargets.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.mergedTargets / crosswalkStats.targetTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA21s split across 3+ LSOA11s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.complexTargets.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.complexTargets / crosswalkStats.targetTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="space-y-2">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Output-side merges: 2011 LSOAs from 2021 LSOAs</h4>
+                    <ul class="space-y-2 text-sm {isDarkMode ? 'text-slate-300' : 'text-slate-700'}">
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s receiving from 2+ LSOA21s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.splitSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.splitSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                      <li class="flex justify-between items-center gap-3 {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
+                        <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s receiving from 3+ LSOA21s</span>
+                        <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.complexSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.complexSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
+                      </li>
+                    </ul>
+                  </div>
+                {/if}
               </div>
             </div>
-          </div>
 
-          <!-- Action Bar -->
-          <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-6 flex items-center justify-between">
-            <div>
-              <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">Apportionment Complete</h3>
-              <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">Generated {estimates.length.toLocaleString()} target mapping rows across national boundaries. {nonUnitWeights.toLocaleString()} rows use a non-1 apportionment weight.</p>
-            </div>
-            <div class="flex space-x-3">
-              <button type="button" class="px-4 py-2 text-sm font-medium cursor-pointer {isDarkMode ? 'text-slate-300 bg-slate-700 hover:bg-slate-600' : 'text-slate-700 bg-slate-100 hover:bg-slate-200'} rounded-lg transition-colors" on:click={resetApp}>Start Over</button>
-              <button type="button" class="px-5 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors flex items-center space-x-2 cursor-pointer" on:click={downloadResults}>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span>Download Estimates (CSV)</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Map & Stats Grid -->
-          <div class="grid grid-cols-1 gap-6">
-            <div class="{isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-6 space-y-4">
-              <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">National Split Statistics</h3>
-              <p class="text-xs {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">
-                Boundary-change relationships from the ONS Exact Fit crosswalk. The map above shows the changed {direction === '11to21' ? 'LSOA 2021 target/output polygons' : 'LSOA 2011 target/output polygons'} using ONS Generalised Clipped boundaries.
-              </p>
-              <ul class="space-y-3 text-sm {isDarkMode ? 'text-slate-300' : 'text-slate-700'}">
-                <li class="flex justify-between items-center {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
-                  <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">Stable 1-to-1 LSOA11 relationships</span>
-                  <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.stableOneToOne.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.stableOneToOne / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
-                </li>
-                <li class="flex justify-between items-center {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
-                  <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s split across 2+ LSOA21s</span>
-                  <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.splitSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.splitSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
-                </li>
-                <li class="flex justify-between items-center {isDarkMode ? 'bg-slate-900/60' : 'bg-slate-50'} p-2.5 rounded-lg">
-                  <span class="{isDarkMode ? 'text-slate-400' : 'text-slate-600'}">LSOA11s split across 3+ LSOA21s</span>
-                  <span class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">{crosswalkStats.complexSources.toLocaleString()} <span class="text-xs text-slate-400 font-normal">({(crosswalkStats.complexSources / crosswalkStats.sourceTotal * 100).toFixed(2)}%)</span></span>
-                </li>
-              </ul>
-            </div>
+            {#if boundaries}
+              <div class="lg:col-span-7 {isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl shadow-sm border p-5">
+                <h3 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'} mb-3">Spatial Boundary Preview</h3>
+                <MapPreview geojson={boundaries} {direction} />
+              </div>
+            {/if}
           </div>
 
           <!-- Preview Table -->

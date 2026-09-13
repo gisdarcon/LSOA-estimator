@@ -62,8 +62,20 @@
         <li><strong>Forward weight checks:</strong> all 2011 source weights sum to 1</li>
         <li><strong>Reverse weight checks:</strong> all 2021 source weights sum to 1</li>
       </ul>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="{isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} p-3 rounded-lg border space-y-1">
+          <h4 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">2011 → 2021 relationships</h4>
+          <p>838 LSOA2011s split across 2+ LSOA2021s; 130 split across 3+ LSOA2021s.</p>
+          <p>101 LSOA2021s are made from 2+ LSOA2011s.</p>
+        </div>
+        <div class="{isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} p-3 rounded-lg border space-y-1">
+          <h4 class="font-semibold {isDarkMode ? 'text-white' : 'text-slate-900'}">2021 → 2011 relationships</h4>
+          <p>101 LSOA2021s split back across 2+ LSOA2011s; none split across 3+ LSOA2011s.</p>
+          <p>838 LSOA2011s receive from 2+ LSOA2021 relationships when viewed in reverse.</p>
+        </div>
+      </div>
       <p class="text-sm leading-relaxed">
-        Example empirical fractional split (forward): <code>E01000010 → E01034473 = 0.45569620</code> and <code>E01000010 → E01034474 = 0.54430380</code>.
+        Step 3 reports both input-side splits and output-side merges for the selected direction. Example empirical fractional split (forward): <code>E01000010 → E01034473 = 0.45569620</code> and <code>E01000010 → E01034474 = 0.54430380</code>.
       </p>
       <p class="text-sm leading-relaxed">
         Example empirical fractional split (reverse): <code>E01028040 ← E01033769 = 0.4375</code> and <code>E01028041 ← E01033769 = 0.5625</code>.
