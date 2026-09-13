@@ -1,56 +1,65 @@
-# LSOA11 to LSOA21 Estimator
+# LSOA 2011 ↔ LSOA 2021 Estimator
 
-Web application for estimating variables from 2011 Lower Layer Super Output Areas (LSOA11) onto 2021 Lower Layer Super Output Areas (LSOA21), using boundary files and postcode/lookup evidence to estimate shares where geographies changed.
+Static Svelte/TypeScript web app for estimating additive variables, especially counts such as population, between England LSOA 2011 and LSOA 2021 boundaries.
 
-## Working idea
+The app is designed for GitHub Pages: users upload only a variable CSV; the official crosswalk, weights, and changed-boundary map layers are bundled as static assets.
 
-A user loads:
+## Current workflow
 
-- LSOA11 boundaries, ideally shapefile/zip or GeoJSON
-- LSOA21 boundaries, ideally shapefile/zip or GeoJSON
-- an NSPL/ONSPD-style postcode lookup table containing postcode-to-geography fields
-- a variable attached to LSOA11 or LSOA21, for example 2021 estimated population
+1. Upload a CSV with an LSOA code column and a numeric variable column, for example `lsoa2011,pop` or `lsoa2021,pop`.
+2. The app auto-detects the direction:
+   - `lsoa2011` / LSOA 2011 codes → `2011 → 2021`
+   - `lsoa2021` / LSOA 2021 codes → `2021 → 2011`
+3. Run national apportionment.
+4. Review conservation totals, changed-boundary map, split statistics, and sample output rows.
+5. Export detailed relationship-level CSV:
 
-The app calculates or previews a crosswalk between LSOA11 and LSOA21 and applies shares to estimate the variable on the target geography.
-
-## Early method hypothesis
-
-1. Use postcode lookup records as weighted evidence for correspondence between LSOA11 and LSOA21.
-2. Group records by source and target LSOA pair.
-3. Estimate shares using a selected weighting field:
-   - postcode count as a first pass
-   - population/household/address count if available or provided
-   - optional externally supplied variable weights
-4. Join shares to the uploaded variable table and aggregate to the target geography.
-5. Map and export the resulting estimates plus diagnostics.
-
-## Key research questions
-
-- Which lookup table should be canonical: NSPL, ONSPD, or ONS-published LSOA11-to-LSOA21 best-fit/exact-fit lookup?
-- Do we need exact spatial overlay of shapefiles, or is lookup-table weighting good enough for the first MVP?
-- Should variables be transformed LSOA11 → LSOA21, LSOA21 → LSOA11, or both?
-- What weight should define “share”: postcodes, residential delivery points, population, households, or user-provided weights?
-- What file formats should the first version support in-browser?
-
-## Layout
-
-- `src/` — frontend source
-- `tests/` — component / e2e tests
-- `docs/` — design notes, ADRs, runbooks
-- `assets/` — static assets
-- `/home/kd/NAS_Hermes/wiki/` — shared knowledge base
-
-## Setup
-
-```bash
-npm install
+```csv
+lsoa2011,lsoa2021,weight,pop
+E01000010,E01034473,0.4557,1633.67
+E01000010,E01034474,0.5443,1951.33
 ```
 
-## Run
+## Method summary
+
+- Relationship authority: **ONS LSOA 2011 to LSOA 2021 Exact Fit Lookup V3**.
+- Weight evidence: **NSPL 2011 Census August 2024** joined to **NSPL 2021 Census August 2024** by normalised postcode.
+- Filter: active residential England postcodes only: `ctry = E92000001`, empty `doterm`, `usertype = 0`.
+- Forward weights sum within each 2011 LSOA.
+- Reverse weights sum within each 2021 LSOA.
+- Direct use is for additive variables only; rates/percentages need numerator/denominator treatment first.
+
+## Boundary map
+
+The map uses real ONS **Generalised Clipped polygon boundaries**, not points.
+
+| Direction | Changed polygons shown | Bundled feature count | Source |
+|---|---:|---:|---|
+| `2011 → 2021` | LSOA 2021 target/output polygons | 1,945 | Lower Layer Super Output Areas (December 2021) Boundaries EW BGC V5 |
+| `2021 → 2011` | LSOA 2011 target/output polygons | 1,034 | Lower Layer Super Output Areas (December 2011) Boundaries EW BGC V3 |
+
+The app intentionally maps only changed polygons, not every LSOA polygon, to keep the static browser UI responsive while preserving polygon geometry.
+
+## Development
+
+Local development mirror:
 
 ```bash
-npm run dev
-npm test
+cd /home/kd/projects/lsoa-estimator
+npm install
+npm run check
 npm run build
-npm run preview
+npx vite preview --host 0.0.0.0 --port 4173 --strictPort
+```
+
+Project/tracking repository:
+
+```text
+/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator
+```
+
+Current preview URL:
+
+```text
+http://localhost:4173/
 ```

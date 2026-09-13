@@ -1,103 +1,105 @@
-# Data Sources Investigation — LSOA11 to LSOA21 Estimator
+# Data Sources — LSOA11 to LSOA21 Estimator
 
-Last updated: 2026-09-12
+Last updated: 2026-09-13
 
 ## Purpose
 
-Track candidate data sources for deriving or validating shares between LSOA11 and LSOA21. This is investigation material, not yet an architectural decision.
+Document the official data sources used to derive and verify the static LSOA 2011 ↔ LSOA 2021 estimator.
 
-## User requirement
+## Geographic scope
 
-The app should allow users to load LSOA11 boundaries and LSOA21 boundaries, use an NSPL/ONSPD-style postcode lookup to identify shares between boundary changes, and estimate additive variables such as 2021 estimated population. The workflow must support both LSOA11 → LSOA21 and LSOA21 → LSOA11.
+The estimator is scoped to **England**.
 
-## Sources found so far
+- Country filter: `ctry = E92000001`.
+- LSOA 2011 codes: `E01...`, 32,844 areas.
+- LSOA 2021 codes: `E01...`, 33,755 areas.
+- Wales, Scotland, and Northern Ireland are excluded from the current app.
 
-### ONSPD / postcode-to-geography lookups
+## Crosswalk relationship authority
 
-Search result found a data.gov.uk page for “Postcode to OA (2021) to LSOA to MSOA to LAD (February 2025) Best Fit Lookup in the UK”. The result description says it contains fields including `PCD7`, `PCD8`, `PCDS`, `OA21CD`, `LSOA21CD`, `MSOA21CD`, `LADCD`, and names. This looks useful for postcodes to 2021 geography, but does not by itself prove that LSOA11 is present.
+The valid relationship set comes from:
 
-Search result also found “ONS Postcode Directory (November 2025) for the UK (Hosted Table)”. The result description says ONSPD relates current and terminated postcodes to a range of geographies and includes 2021 Census OA hierarchy for England, Wales, and Northern Ireland. Need to verify whether the selected release includes 2011 LSOA fields in the same table, or whether a separate historical lookup is needed.
+- **LSOA (2011) to LSOA (2021) to Local Authority District (2022) Exact Fit Lookup for EW (V3)**
+- ONS Open Geography Portal: <https://geoportal.statistics.gov.uk/datasets/ons::lsoa-2011-to-lsoa-2021-to-local-authority-district-2022-exact-fit-lookup-for-ew-v3/about>
 
-### LSOA11 to LSOA21 lookup
+This lookup defines the official LSOA11→LSOA21 relationships used by the app. It is used as the authority for relationship membership; the app does not invent target codes.
 
-Search result text from data.gov.uk indicates an “LSOA 2011 to LSOA 2021 to Local Authority District (2022) Best Fit Lookup” exists for England and Wales. This may be the safest first baseline crosswalk, but “best fit” is not necessarily a proportional share table. Need metadata.
+## Weighting evidence
 
-### Boundary files
+Weights are derived from two NSPL August 2024 releases joined by normalised postcode:
 
-Search result text indicates ONS Geography/data.gov.uk has “Lower layer Super Output Areas (December 2021) Boundaries EW” datasets in multiple formats including GeoJSON, ZIP, GPKG, and GDB. Need exact pages for:
+1. **National Statistics Postcode Lookup - 2011 Census (August 2024) for the UK**
+   - ONS Open Geography Portal: <https://geoportal.statistics.gov.uk/datasets/c5afedb9204a47e99559a4880feddcb1/about>
+   - Used for LSOA 2011 membership.
+2. **National Statistics Postcode Lookup - 2021 Census (August 2024) for the UK**
+   - ONS Open Geography Portal: <https://geoportal.statistics.gov.uk/datasets/73ce619853044aaaa6f7fa5b90765b85/about>
+   - Used for LSOA 2021 membership.
 
-- LSOA 2011 boundaries, England and Wales
-- LSOA 2021 boundaries, England and Wales
-- preferred resolution: full, generalised, or clipped
+### Filters
 
-### Browser GIS libraries
+Only active residential England postcode records are used:
 
-Initial web research found candidate libraries for a GIS-first implementation:
+| Field | Required value | Reason |
+|---|---|---|
+| `ctry` | `E92000001` | England-only scope |
+| `doterm` | empty | active postcodes only |
+| `usertype` | `0` | small-user/residential weighting proxy |
 
-- `shpjs`: parses zipped shapefiles to GeoJSON in pure JavaScript, including browser File API `ArrayBuffer` inputs.
-- Turf.js: modular GeoJSON spatial-analysis toolkit for browser and Node contexts; candidate for point-in-polygon, measurement, and other analysis functions.
-- `polygon-clipping` / `martinez-polygon-clipping`: candidate polygon boolean/intersection libraries for overlay spikes if needed.
+### Weight formula
 
-## Candidate methods
+Forward `2011 → 2021` weight:
 
-### Method A — Published ONS LSOA11→LSOA21 lookup first
+```text
+share(lsoa11,lsoa21) = postcode_count(lsoa11,lsoa21) / sum(postcode_count(lsoa11,*))
+```
 
-Use the published ONS LSOA11-to-LSOA21 lookup as the initial crosswalk source. If it is best-fit only, use it for code correspondence and validation, not proportional shares unless metadata supports that.
+Reverse `2021 → 2011` weight:
 
-Pros:
-- likely easiest and most authoritative first pass
-- avoids browser-heavy geometry overlay
-- good for validating user-uploaded codes
+```text
+reverseShare(lsoa21,lsoa11) = postcode_count(lsoa11,lsoa21) / sum(postcode_count(*,lsoa21))
+```
 
-Cons:
-- may not provide proportional shares
-- may hide many-to-many boundary-change detail
+The exported column is named `weight` in both directions.
 
-### Method B — Postcode-weighted lookup shares
+## Current crosswalk asset
 
-Use NSPL/ONSPD records as evidence. Count or weight postcodes by source-target LSOA pairs, then calculate shares. This is the accepted first method, starting with postcode count and supporting both directions by swapping source and target.
+Bundled file:
 
-Pros:
-- aligns with user’s requested NSPL-based approach
-- can produce proportional shares if suitable weights exist
-- transparent and reproducible
+```text
+src/assets/data/lsoa11-to-lsoa21-crosswalk.json
+```
 
-Cons:
-- postcode count is not population count
-- terminated/current postcode handling matters
-- needs verified old and new LSOA fields
+Verified coverage:
 
-Follow-up:
-- investigate a household/residential count weight, preferably based on a defensible delivery-point, residential-address, or household proxy rather than raw postcode count
+- 33,856 official exact-fit relationship rows.
+- 32,844 LSOA 2011 source areas.
+- 33,755 LSOA 2021 target areas.
+- 1,415,849 active residential England postcode records used.
+- Forward weights sum to 1 within each LSOA 2011 to stored-decimal rounding tolerance.
+- Reverse weights sum to 1 within each LSOA 2021.
 
-### Method C — Spatial overlay of boundaries
+## Boundary map sources
 
-Intersect LSOA11 and LSOA21 geometries and use area shares.
+The map uses real ONS **Generalised Clipped polygon boundaries**. It does not use point or centroid replacements.
 
-Pros:
-- independent of postcode lookup availability
-- directly reflects geometry changes
+| Direction | Polygons shown | Bundled asset | Source |
+|---|---|---|---|
+| `2011 → 2021` | changed LSOA 2021 target/output polygons | `src/assets/data/changed-lsoa21-polygons.json` | Lower Layer Super Output Areas (December 2021) Boundaries EW BGC V5 |
+| `2021 → 2011` | changed LSOA 2011 target/output polygons | `src/assets/data/changed-lsoa11-polygons.json` | Lower Layer Super Output Areas (December 2011) Boundaries EW BGC V3 |
 
-Cons:
-- area is often a poor population/share proxy
-- computationally heavier in browser
-- requires robust projection and geometry handling
+Source references:
 
-## Early recommendation
+- **Lower Layer Super Output Areas (December 2011) Boundaries EW BGC (V3)**: <https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-ew-bgc-v3/about>
+- **Lower Layer Super Output Areas (December 2021) Boundaries Generalised Clipped EW BGC**: <https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2021-boundaries-generalised-clipped-ew-bgc/about>
 
-Superseded by ADR 0002. Do **not** start with a CSV-only prototype. Start with a GIS parser/spatial-analysis spike:
+Verified bundled map coverage:
 
-1. Load LSOA11 and LSOA21 boundaries from zipped shapefile and/or GeoJSON.
-2. Load postcode lookup data with point/grid-reference fields and LSOA11/LSOA21 fields where available.
-3. Run point-in-polygon validation or derivation for postcode points against both boundary sets.
-4. Calculate bidirectional postcode-count shares.
-5. Apply shares to an additive variable table keyed by the selected source geography.
+- Forward map: 1,945 changed LSOA21 codes and 1,945 polygon features; no missing changed codes.
+- Reverse map: 1,034 changed LSOA11 codes and 1,034 polygon features; no missing changed codes.
 
-This brings the core GIS risk forward instead of hiding it behind a CSV-only prototype.
+## Limitations
 
-## Questions to resolve with user
-
-- Should user-uploaded data include the variable on LSOA11 or LSOA21?
-- Should the app ship with known ONS lookup downloads, or only accept user-uploaded files?
-- Is browser-only processing required?
-- Which household/residential count source can be used after postcode-count weighting?
+- Postcode count is a proxy, not a direct household or population count.
+- Direct apportionment is appropriate for additive variables only.
+- Browser upload processing uses a precomputed static crosswalk; the full postcode-level precompute is run offline when the source data or method changes.
+- Full all-LSOA national boundary rendering is avoided for performance; the app maps changed polygons only.

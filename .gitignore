@@ -19,7 +19,7 @@ secrets/
 # Logs & generated data
 *.log
 *.sqlite3
-data/
+/data/
 # Node / frontend
 node_modules/
 dist/

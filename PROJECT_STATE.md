@@ -1,55 +1,71 @@
 # Project State — LSOA11 to LSOA21 Estimator
 
-Last updated: 2026-09-12 22:03 BST | Updated by: Hermes Agent
+Last updated: 2026-09-13 02:31 BST | Updated by: Hermes Agent
 
 ## Current focus
 
-Define and spike a static, GitHub Pages-compatible, bidirectional GIS-first web app that estimates variables between LSOA11 and LSOA21 geographies using uploaded boundaries, postcode lookup evidence, and client-side spatial analysis.
+Static GitHub Pages-compatible estimator for additive variables between England LSOA 2011 and LSOA 2021 geographies. The app now uses a bundled official Exact Fit + NSPL-derived crosswalk and direction-specific ONS Generalised Clipped polygon map layers.
 
 ## Working state
 
 - Branch: `main`
-- Tests: `python3 scripts/doc_lint.py` OK; `python3 scripts/secret_scan.py` OK
-- Build: not configured beyond web template placeholders
-- Blockers: need exact NSPL/ONSPD fields and browser GIS feasibility before implementation starts
+- Main development mirror: `/home/kd/projects/lsoa-estimator`
+- Project/tracking repo: `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator`
+- Preview URL: `http://localhost:4173/`
+- App stack: Vite + TypeScript + Svelte + Tailwind + Leaflet
+- Tests/checks: `npm run check`, `npm run build`, browser workflow checks, boundary/crosswalk verification script
+- Blockers: none known for the current static app workflow
 
-## What changed since last session
+## Implemented app behavior
 
-- Created project under `/home/kd/NAS_Hermes/work/lsoa11-to-lsoa21-estimator` from the web template.
-- Created Hermes Desktop Project anchored to the project root.
-- Created Discord channel/session: `#p-lsoa11-to-lsoa21-estimator` / `D-LSOA11 to LSOA21 estimator`.
-- Routed Telegram group/session: `P - LSOA11 to LSOA21 estimator` / `T-LSOA11 to LSOA21 estimator`.
-- Started investigation of ONS postcode/geography lookups and LSOA boundary sources.
-- User confirmed both LSOA11 → LSOA21 and LSOA21 → LSOA11 are required.
-- User confirmed postcode count is the first weighting method, with household/residential count to investigate next.
-- User confirmed GIS tooling is required: boundary loading, point-in-polygon, and other spatial analysis, not CSV-only processing.
-- Added ADR 0002 for the accepted bidirectional GIS-first method.
-- User confirmed the web app must be static and able to be served by GitHub Pages.
-- Added ADR 0003 for static GitHub Pages deployment.
-- User requested that library options be presented with a chance to select the preferred choice before libraries are adopted.
-- User confirmed difficult computations should use the client's processing resources.
-- User selected Vite + TypeScript + Svelte, Turf.js, and shpjs as the first static client stack.
-- Added ADR 0004 for the accepted library stack.
+- User uploads only a variable CSV; no boundary upload is required for the standard workflow.
+- Direction is auto-selected from the uploaded LSOA code column/codes:
+  - LSOA 2011 input → `2011 → 2021`
+  - LSOA 2021 input → `2021 → 2011`
+- Relationship-level export uses columns: `lsoa2011,lsoa2021,weight,<uploaded variable>`.
+- Conservation totals are shown for input and estimated output geographies.
+- Preview table sorts non-1 weights first so changed-boundary rows are visible immediately.
+- Methodology & Sources page documents the Exact Fit + NSPL August 2024 method, boundary map, and official source links.
+- Map uses grey OpenStreetMap basemap plus ONS Generalised Clipped LSOA polygon overlays.
 
-## Next actions (ordered)
+## Current data assets
 
-1. Verify exact fields available in the chosen NSPL/ONSPD or ONS lookup table, especially postcode point/grid references and LSOA11/LSOA21 fields.
-2. Investigate household/residential count weighting sources and licensing.
-3. Scaffold the static Vite + TypeScript + Svelte app with GitHub Pages-safe output settings.
-4. Add Turf.js and shpjs behind a small spike, keeping heavy spatial work in Web Workers.
-5. Build a boundary-loader and point-in-polygon spike before committing to the full implementation.
-6. Design the generic source/target model for both transformation directions.
+- Crosswalk: `src/assets/data/lsoa11-to-lsoa21-crosswalk.json`
+  - 33,856 official exact-fit relationship rows
+  - 32,844 LSOA 2011 source areas
+  - 33,755 LSOA 2021 target areas
+  - 1,415,849 active residential England postcode records used as weighting evidence
+- Forward map polygons: `src/assets/data/changed-lsoa21-polygons.json`
+  - 1,945 changed LSOA 2021 target/output polygons
+  - Source: ONS LSOA 2021 Boundaries EW BGC V5, Generalised Clipped
+- Reverse map polygons: `src/assets/data/changed-lsoa11-polygons.json`
+  - 1,034 changed LSOA 2011 target/output polygons
+  - Source: ONS LSOA 2011 Boundaries EW BGC V3, Generalised Clipped
 
-## Open threads
+## Latest verification
 
-- Data source pending: exact NSPL/ONSPD fields, household/residential count source, and published lookup validation role.
-- Architecture accepted: static/browser-only v1 deployable on GitHub Pages, using Vite + TypeScript + Svelte, Turf.js, and shpjs.
-- Method accepted: bidirectional GIS-first, postcode-count first; details pending for input field mapping and performance strategy.
+- `npm run check` passed with 0 errors and 0 warnings.
+- `npm run build` passed.
+- Browser verification:
+  - `2011 → 2021` loaded 1,945 SVG polygon paths and reported 1,848 non-1 output weights.
+  - `2021 → 2011` loaded 1,034 SVG polygon paths and reported 200 non-1 output weights.
+  - Both directions reported conservation as `Perfect Match` with the generated full test CSVs.
+- Boundary asset verification:
+  - changed LSOA21 target code count = 1,945; polygon features = 1,945; missing = 0.
+  - changed LSOA11 target/output code count = 1,034; polygon features = 1,034; missing = 0.
+  - reverse weight sums pass exactly; forward sums differ only at around 1e-8 due stored decimal rounding.
+
+## Next actions
+
+1. Optionally reduce production JS size by lazy-loading boundary polygon JSON only after Step 3.
+2. If a public deployment is needed, push the committed repo to GitHub and enable GitHub Pages from the workflow.
+3. If higher-accuracy weighting is required, add a user-provided household/address-count weighting option.
 
 ## Pointers
 
 - Intent & roadmap: `PLAN.md`
-- Agent context & guardrails: `AGENTS.md`
 - Architecture: `docs/architecture.md`
+- Data sources/method: `docs/data-sources.md`
 - Decisions: `docs/adrs/`
-- Knowledge base: `/home/kd/NAS_Hermes/wiki/`
+- App source: `src/`
+- Crosswalk build script: `scripts/build_real_crosswalk.py`
