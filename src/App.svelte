@@ -6,7 +6,7 @@
   import MapPreview from './lib/MapPreview.svelte';
   import MethodologyModal from './lib/MethodologyModal.svelte';
   import { fetchChangedBoundaries } from './lib/boundary-service';
-
+  
   import crosswalkData from './assets/data/lsoa11-to-lsoa21-crosswalk.json';
   import type { ShareResult } from './lib/share-calculator';
 
@@ -79,11 +79,11 @@
     if (!file) return;
     fileName = file.name;
     status = 'Reading CSV file...';
-
+    
     try {
       const text = await file.text();
       status = 'Parsing 33,755 national records...';
-
+      
       const parsed = parseCSVText(text);
       originalCodeKey = parsed.codeKey;
       originalValueKey = parsed.valKey;
@@ -117,7 +117,7 @@
   async function runCalculation() {
     shares = crosswalkData as unknown as ShareResult[];
     estimates = estimateDetailedFlow(variableData, shares, direction);
-
+    
     totalInputPop = variableData.reduce((sum, r) => sum + r.value, 0);
     totalEstimatedPop = estimates.reduce((sum, r) => sum + r.value, 0);
     nonUnitWeights = estimates.filter(r => Math.abs(r.ratio - 1) > 0.00000001).length;
@@ -137,7 +137,7 @@
   }
 
   function downloadResults() {
-    exportDetailedResults(estimates, originalValueKey);
+    exportDetailedResults(estimates, originalValueKey, direction);
   }
 
   function resetApp() {
@@ -160,14 +160,14 @@
         <p class="{isDarkMode ? 'text-slate-400' : 'text-indigo-200'} text-sm">Official ONS Geographic Proportional Apportionment Tool</p>
       </div>
       <div class="flex items-center space-x-4">
-        <button
+        <button 
           type="button"
           class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer {isDarkMode ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-indigo-800 text-indigo-100 hover:bg-indigo-900'}"
           on:click={() => { showMethodology = !showMethodology; console.log('Toggled showMethodology:', showMethodology); }}
         >
           {showMethodology ? 'Estimator' : 'Methodology & Sources'}
         </button>
-        <button
+        <button 
           type="button"
           class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer {isDarkMode ? 'bg-slate-700 text-amber-400 hover:bg-slate-600' : 'bg-indigo-800 text-indigo-100 hover:bg-indigo-900'}"
           on:click={() => isDarkMode = !isDarkMode}

@@ -13,7 +13,7 @@ tags: [architecture, data, gis, static-site]
 
 The app must be static and GitHub Pages-compatible, but the national LSOA 2011 ↔ LSOA 2021 method needs official relationship coverage, proportional weights, and map evidence of changed boundary areas.
 
-Earlier mock data produced synthetic 50/50 weights and fake-looking outputs, which was not acceptable. The user required the ONS lookup for exact fit relationships and NSPL postcode evidence for non-uniform shares. The user also clarified that the map must use polygon boundaries, not point or centroid substitutes.
+Earlier mock data produced arbitrary synthetic weights and uniform splits, which was not acceptable. The user required the ONS lookup for exact fit relationships and NSPL postcode evidence for empirical non-uniform shares. The user also clarified that the map must use polygon boundaries, not point or centroid substitutes.
 
 ## Decision
 
@@ -58,7 +58,7 @@ Before release or commit:
 
 ## Alternatives considered
 
-- **Mock crosswalk / synthetic splits** — rejected; not official and produced misleading 50/50 or fake-code behavior.
+- **Mock crosswalk / synthetic uniform splits** — rejected; not official and produced misleading uniform or fake-code behavior.
 - **Live full point-in-polygon in browser** — rejected for the standard workflow because postcode-level national precompute is too heavy for a static app runtime.
 - **All national LSOA polygons on the map** — rejected for default UI because it made the map slow or invisible.
 - **Point/centroid changed-boundary layer** — rejected because it changes the agreed map representation; user approval is required before such a fallback.

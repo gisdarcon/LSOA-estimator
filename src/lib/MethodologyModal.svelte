@@ -10,7 +10,7 @@
         <h2 class="text-2xl font-bold {isDarkMode ? 'text-white' : 'text-slate-900'}">Methodology & Sources</h2>
         <p class="text-sm {isDarkMode ? 'text-slate-400' : 'text-slate-500'}">How the LSOA 2011 ↔ LSOA 2021 weights are built, used, and verified.</p>
       </div>
-      <button
+      <button 
         type="button"
         class="px-4 py-2 text-sm font-medium cursor-pointer {isDarkMode ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} rounded-lg transition-colors shrink-0"
         on:click={onBack}
@@ -48,7 +48,7 @@
         <li>Postcodes are counted inside each official LSOA11→LSOA21 pair. The forward weight is normalised within each 2011 LSOA. The reverse weight is normalised within each 2021 LSOA.</li>
       </ol>
       <p class="text-sm leading-relaxed">
-        This produces real non-50/50 weights where postcode evidence supports uneven splits. It also conserves totals in both directions because weights sum to 1 within each source geography.
+        This produces empirical fractional weights where active residential postcode evidence reflects uneven splits across boundary changes. It also conserves totals in both directions because weights sum to 1 within each source geography.
       </p>
     </div>
 
@@ -63,10 +63,10 @@
         <li><strong>Reverse weight checks:</strong> all 2021 source weights sum to 1</li>
       </ul>
       <p class="text-sm leading-relaxed">
-        Example non-50/50 forward split: <code>E01000010 → E01034473 = 0.45569620</code> and <code>E01000010 → E01034474 = 0.54430380</code>.
+        Example empirical fractional split (forward): <code>E01000010 → E01034473 = 0.45569620</code> and <code>E01000010 → E01034474 = 0.54430380</code>.
       </p>
       <p class="text-sm leading-relaxed">
-        Example non-50/50 reverse split: <code>E01028040 ← E01033769 = 0.4375</code> and <code>E01028041 ← E01033769 = 0.5625</code>.
+        Example empirical fractional split (reverse): <code>E01028040 ← E01033769 = 0.4375</code> and <code>E01028041 ← E01033769 = 0.5625</code>.
       </p>
     </div>
 
@@ -132,8 +132,8 @@
     </div>
 
     <div class="flex justify-end pt-2">
-      <button
-        type="button"
+      <button 
+        type="button" 
         class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow transition-colors cursor-pointer"
         on:click={onBack}
       >
