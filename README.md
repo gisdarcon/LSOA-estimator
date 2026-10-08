@@ -4,7 +4,7 @@ A static browser app for estimating additive variables between England LSOA 2011
 
 The app is designed for GitHub Pages. Users upload a simple CSV containing LSOA codes and one numeric additive variable, such as population. The app auto-detects the input geography, applies official relationship-level fractional weights, reports conservation checks, displays changed-boundary polygons, and exports a detailed audit CSV.
 
-Created by **Konstantinos Daras** — Konstantinos.Daras@liverpool.ac.uk
+Created by Hermes Agent (GPT 5.5) & **Konstantinos Daras** — Konstantinos.Daras@liverpool.ac.uk
 
 ## Live app
 
